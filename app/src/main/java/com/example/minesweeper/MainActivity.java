@@ -1,13 +1,12 @@
 package com.example.minesweeper;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.gridlayout.widget.GridLayout;
 
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -19,9 +18,9 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     //layout and mines
-    private static final int COLUMN_COUNT = 8;
-    private static final int ROW_COUNT = 10;
-    private static final int MINES_COUNT = 4;
+    private static final int COLUMN_COUNT = 4;
+    private static final int ROW_COUNT = 4;
+    private static final int MINES_COUNT = 1;
     //clock
     private int clock = 0;
     private boolean running = false;
@@ -29,7 +28,8 @@ public class MainActivity extends AppCompatActivity {
     private HashMap<TextView, int[]> map;
     private TextView[][] array_map;
     private HashSet<TextView> mines;
-    private HashSet<TextView> visited;
+    private int[][] mines_map; //important for DFS. you stop expanding if you see a number.
+    private HashSet<TextView> visited; //part of DFS
     private int[][] surroundings = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
 
     //this one is important for initializing text upon creation near the mines.
@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         cell_tvs = new ArrayList<TextView>();
         array_map = new TextView[ROW_COUNT][COLUMN_COUNT];
+        mines_map = new int[ROW_COUNT][COLUMN_COUNT];
 
         // Method (2): add four dynamically created cells
         androidx.gridlayout.widget.GridLayout grid = (androidx.gridlayout.widget.GridLayout) findViewById(R.id.gridLayout01);
@@ -98,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 int minutes = (clock % 3600) / 60;
                 int total = seconds + minutes * 60;
                 //implement later
-                if (total >= 100){
+                if (total >= 1000){
                     total = 99;
                 }
                 String time = String.valueOf(total);
@@ -115,25 +116,51 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /*
-    private int findIndexOfCellTextView(TextView tv) {
+    //During clicking
+    //setOnClickListener(this::onClickNode);
+
+    public void changetype(View view){
+
+    }
+
+    private int findIndexOfCellTextView(TextView tv) { //helper function
         for (int n=0; n<cell_tvs.size(); n++) {
             if (cell_tvs.get(n) == tv)
                 return n;
         }
         return -1;
     }
-    */
-
-    //use rand?
-    //use a random seed, only pseudorandom, current time.
-    //use random();
-
     public void onClickTV(View view){
         TextView tv = (TextView) view;
         tv.setTextColor(Color.GRAY);
         tv.setBackgroundColor(Color.LTGRAY);
+
+        //detecting mines
+
+        int n = findIndexOfCellTextView(tv);
+        int i = n/COLUMN_COUNT;
+        int j = n%COLUMN_COUNT;
+
+        if (mines.contains(array_map[i][j])){ //you hit a mine
+            running = false;
+            tv.setTextColor(Color.RED);
+            tv.setBackgroundColor(Color.parseColor("red"));
+        }
+
+        else{
+            int totalmine = mine_surround_helper(i, j);
+            if (totalmine != 0){
+                tv.setText(String.valueOf(totalmine)); //do not expand
+            }
+            else{ //empty square with no mines
+                visited = new HashSet<TextView>();
+                DFS(i, j, view);
+            }
+        }
     }
+
+    //FIGURE OUT WHAT HAPPENS ON THE BOTTOM
+
     public void gen_mines(){ //randomly generate mines
         mines = new HashSet<TextView>();
         Random rand = new Random();
@@ -147,17 +174,54 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             mines.add(array_map[num1][num2]);
+            //debug purposes
+            Log.d("Number Generated",String.valueOf(num1) + " and " + String.valueOf(num2));
+
         }
-    }
-    private int mine_surround_helper (int i, int j){
-        int  minesme = 0;
-        for (int[] temp: surroundings){
-            if (mines.contains(array_map[i + temp[0]][j + temp[1]])){
-                minesme++;
+        for (int i = 0; i < MINES_COUNT; i++){
+            for (int j = 0; j < COLUMN_COUNT; j++){
+                if (mines.contains(array_map[i][j])){
+                    mine_surround_helper(i,j);
+                }
             }
         }
+    }
+
+    private int mine_surround_helper (int i, int j){
+        int minesme = 0;
+        for (int[] temp: surroundings){
+            int dummyx = i + temp[0];
+            int dummyy = j + temp[1];
+            if ((dummyx >= 0 & dummyy >= 0) & (dummyx < ROW_COUNT & dummyy < COLUMN_COUNT)){
+                if (mines.contains(array_map[dummyx][dummyy])){
+                    minesme++;
+                }
+            }
+        }
+        mines_map[i][j] = minesme;
+        //debug purposes
+        Log.d("Neighbors Generated in " + String.valueOf(i) + " and " + String.valueOf(j), String.valueOf(minesme));
         return minesme;
     }
 
+
+
+    public void DFS(int i, int j, View view){
+        //another data structure. Handle bacnkend. You can store number and grab grid number.
+        //GUI. Create another data structure.
+        TextView tv = (TextView) view;
+        if ((i >= 0 && i < ROW_COUNT) && (j >= 0 && j < COLUMN_COUNT)){ //valid range
+            if (!visited.contains(array_map[i][j])){ //expand if we did not discover and is an empty square
+                tv.setTextColor(Color.GRAY);
+                tv.setBackgroundColor(Color.LTGRAY);
+                visited.add(array_map[i][j]);
+                if (mines_map[i][j]==0){
+                    for (int[] temp: surroundings){
+                        DFS((i + temp[0]), (j + temp[1]), view);
+                    }
+                }
+            }
+        }
+    }
     //settext, gettext.
 }
