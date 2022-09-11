@@ -27,9 +27,9 @@ public class MainActivity extends AppCompatActivity {
     //extra variables, very important for minesweeper layout!!
 
     private boolean mining = true; //determines if a player is in a mining style, or flagging style.
-    private int[][] mine_location = new int[ROW_COUNT][COLUMN_COUNT];
-    private int[][] surroundings = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
-    private ArrayList<Pair<Integer, Integer>> locations = new ArrayList<Pair<Integer, Integer>>();
+    private final int[][] mine_location = new int[ROW_COUNT][COLUMN_COUNT];
+    private final int[][] surroundings = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
+    private final ArrayList<Pair<Integer, Integer>> locations = new ArrayList<Pair<Integer, Integer>>();
     private boolean[][] visited = new boolean[ROW_COUNT][COLUMN_COUNT];
 
     //determining if winning or losing
@@ -63,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
         // However, this is modified since I need to also initialize mine_location and visited.
         androidx.gridlayout.widget.GridLayout grid = (androidx.gridlayout.widget.GridLayout) findViewById(R.id.gridLayout01);
         running = true;
+        TextView flag = (TextView) findViewById(R.id.flagcount);
+        flag.setText(String.valueOf(MINES_COUNT));
 
         for (int i = 0; i < ROW_COUNT; i++){
             for (int j = 0; j < COLUMN_COUNT; j++){
@@ -173,11 +175,9 @@ public class MainActivity extends AppCompatActivity {
             int y1 = y;
             int temp1 = itr2[0];
             int temp2 = itr2[1];
-            //Log.d("x pos: ", String.valueOf(x1) + " + " + String.valueOf(temp1));
-            //Log.d("y pos: ", String.valueOf(y1) + " + " + String.valueOf(temp2));
             x1 += temp1;
             y1 += temp2;
-            if ((x1 >= 0 & x1 < ROW_COUNT) & (y1 >=0 & y1 < COLUMN_COUNT)){//legal range
+            if ((x1 >= 0 && x1 < ROW_COUNT) && (y1 >=0 && y1 < COLUMN_COUNT)){//legal range
                 if (mine_location[x1][y1]!=1000000){ //we do not see a mine
                     mine_location[x1][y1]++;
                 }
@@ -208,18 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (tv.getCurrentTextColor() == Color.GREEN){
             //-16711936 for GREEN
-            if (mining){
-
-                /*
-                This part is where it gets very difficult. Requires to use DFS algorithm.
-                We need to know what happens if a player clicked a mine. If that is a case,
-                head to the intent.
-                We need to deal with the barriers. If we go out of bounds, then that is a problem.
-                We will need to use data structures, like a 2D array. Maybe that can help. But we
-                also need to store the mines location.
-                DFS will be hard. I will need to get very good planning skills, like CSCI 104...
-                 */
-                //If we are mining, then we color this as gray. Otherwise, do not color but place a flag.
+            if (mining){ //mining mode
 
                 if (!tv.getText().toString().equals("\uD83D\uDEA9")){
                     //checks to see if there is no flag
@@ -264,21 +253,28 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             else{
-                //we only place flags. THIS PART IS DONE
+                //we only place flags.
+
+                int n = findIndexOfCellTextView(tv);
+                int i = n/COLUMN_COUNT;
+                int j = n%COLUMN_COUNT;
+                TextView tv2 = cell_tvs.get(COLUMN_COUNT * i +j);
+
                 if (tv.getText().toString().equals("\uD83D\uDEA9")){
-                    int n = findIndexOfCellTextView(tv);
-                    int i = n/COLUMN_COUNT;
-                    int j = n%COLUMN_COUNT;
+
                     if (mine_location[i][j] != 1000000 && mine_location[i][j] != 0){ //has a mine near it
                         tv.setText(String.valueOf(mine_location[i][j]));
+                        tv2.setText(String.valueOf(mine_location[i][j]));
                     }
                     else{ //exclude it, but prevent a square mine from having a number.
                         tv.setText("");
+                        tv2.setText("");
                     }
                     flag_counter++;
                 }
                 else {
                     tv.setText("\uD83D\uDEA9");
+                    tv2.setText("\uD83D\uDEA9");
                     flag_counter--;
                 }
                 flag.setText(String.valueOf(flag_counter));
@@ -288,16 +284,27 @@ public class MainActivity extends AppCompatActivity {
 
     private void DFS(int i, int j){
 
-        //change square color.
         int indexofcell = COLUMN_COUNT * i + j;
         TextView tv = cell_tvs.get(indexofcell); //get a specified cell.
+        if (tv.getText().toString().equals("\uD83D\uDEA9")){
+            visited[i][j] = false;
+            return;
+
+            //if we are at a flag, they do not count.
+        }
+
+        total_squares--;
+        //change square color.
+        visited[i][j] = true;
         tv.setTextColor(Color.GRAY);
-        //-7829368 for Gray
-        //-3355444 for LTgray
         tv.setBackgroundColor(Color.LTGRAY);
 
+        if ((mine_location[i][j] > 0 && mine_location[i][j] < 1000000) && !tv.getText().toString().equals("\uD83D\uDEA9")) {
+            return;
+            //do not expand if we are in one square with a number.
+            //do not also expand if we are at a flag.
+        }
         //search
-
         for (int[] itr2: surroundings){
             int x1 = i;
             int y1 = j;
@@ -306,32 +313,23 @@ public class MainActivity extends AppCompatActivity {
             x1 += temp1;
             y1 += temp2;
 
-            if ((x1 >= 0 & x1 < ROW_COUNT) & (y1 >=0 & y1 < COLUMN_COUNT)){//legal range
-                if (mine_location[x1][y1]==0 & !visited[x1][y1] & !tv.getText().toString().equals("\uD83D\uDEA9")){
+            if ((x1 >= 0 && x1 < ROW_COUNT) && (y1 >=0 && y1 < COLUMN_COUNT)){//legal range
+                if (mine_location[x1][y1] == 0 && !visited[x1][y1]){
                     tv.setTextColor(Color.GRAY);
-                    //-7829368 for Gray
-                    //-3355444 for LTgray
                     tv.setBackgroundColor(Color.LTGRAY);
-                    //we do not see a mine or a flag.
                     //we can only expand if a square is clean.
-                    visited[x1][y1] = true;
-                    Log.d("Visited: ", String.valueOf(x1) + " + " + String.valueOf(y1));
-                    total_squares--;
+                    //Log.d("Visited: ", String.valueOf(x1) + " + " + String.valueOf(y1));
                     Log.d("Available: ", String.valueOf(total_squares));
                     DFS(x1, y1);
                 }
-                else if ((mine_location[x1][y1] > 0 & mine_location[x1][y1] < 1000000) & !visited[x1][y1] & !tv.getText().toString().equals("\uD83D\uDEA9")){
-                    //basically we cannot open a square that is occupied by a flag
+                else if ((mine_location[x1][y1] > 0 && mine_location[x1][y1] < 1000000) && !visited[x1][y1]){
                     //we cannot open a square that is already visited
                     //we can open a square containing adjacent mine, but do not expand.
                     tv.setTextColor(Color.GRAY);
-                    //-7829368 for Gray
-                    //-3355444 for LTgray
                     tv.setBackgroundColor(Color.LTGRAY);
-                    visited[x1][y1] = true;
-                    total_squares--;
-                    Log.d("Visited: ", String.valueOf(x1) + " + " + String.valueOf(y1));
+                    //Log.d("Visited: ", String.valueOf(x1) + " + " + String.valueOf(y1));
                     Log.d("Available: ", String.valueOf(total_squares));
+                    DFS(x1, y1);
                 }
             }
         }
