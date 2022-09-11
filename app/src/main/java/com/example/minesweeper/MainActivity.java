@@ -2,12 +2,14 @@ package com.example.minesweeper;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -18,9 +20,9 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     //layout and mines
-    private static final int COLUMN_COUNT = 8;
-    private static final int ROW_COUNT = 10;
-    private static final int MINES_COUNT = 4;
+    private static final int COLUMN_COUNT = 3;
+    private static final int ROW_COUNT = 3;
+    private static final int MINES_COUNT = 1;
     //clock
     private int clock = 0;
     private boolean running = false;
@@ -85,6 +87,10 @@ public class MainActivity extends AppCompatActivity {
                 cell_tvs.add(tv);
             }
         }
+
+        TextView mimetype = (TextView) findViewById(R.id.modes);
+        mimetype.setOnClickListener(this::onClickMode);
+        //mimetype.setText("⛏🚩");
         runTimer(); //run time, unless a player clicked a mine.
     }
 
@@ -127,13 +133,35 @@ public class MainActivity extends AppCompatActivity {
 
     //During clicking
     //setOnClickListener(this::onClickNode);??
-
-    public void onClickTV(View view){
+    public void onClickMode(View view){
         TextView tv = (TextView) view;
+        if (tv.getText().toString().equals("🚩")){
+            tv.setText("⛏");
+        }
+        else if (tv.getText().toString().equals("⛏")){
+            tv.setText("🚩");
+        }
+    }
+    public void onClickTV(View view){
 
+        //if you click the pickaxe or flag at the bottom, it changes mode.
+
+        TextView tv = (TextView) view;
+        if (tv.getCurrentTextColor() == Color.GREEN){
+            total_squares--;
+            Log.d("Counter",String.valueOf(total_squares) + " squares remaining.");
+        }
         tv.setTextColor(Color.GRAY);
         tv.setBackgroundColor(Color.LTGRAY);
 
+        if (total_squares==0){
+            final TextView timeView = (TextView) findViewById(R.id.timer);
+            String message = timeView.getText().toString();
+
+            Intent intent = new Intent(this, Result.class);
+            intent.putExtra("com.example.sendmessage.MESSAGE", message);
+            startActivity(intent);
+        }
         //detecting mines
 
         int n = findIndexOfCellTextView(tv);
