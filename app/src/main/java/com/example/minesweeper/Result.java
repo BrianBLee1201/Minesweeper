@@ -21,6 +21,20 @@ public class Result extends AppCompatActivity {
         //you get object by id
         //each activity corresponds to a single HTML page
         textView.setText(message);
+
+        String status = intent.getStringExtra("com.example.sendmessage.STATUS");
+        if (status.equals("win")){
+            TextView textView2 = findViewById(R.id.won);
+            textView2.setText("You won.");
+            TextView textView3 = findViewById(R.id.compliment);
+            textView3.setText("Good Job!");
+        }
+        else if (status.equals("lose")){
+            TextView textView2 = findViewById(R.id.won);
+            textView2.setText("You lost.");
+            TextView textView3 = findViewById(R.id.compliment);
+            textView3.setText("Nice Try!");
+        }
     }
 
     public void backToMain(View view) {
