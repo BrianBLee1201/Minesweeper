@@ -9,13 +9,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,8 +22,9 @@ public class MainActivity extends AppCompatActivity {
     //clock
     private int clock = 0;
     private boolean running = false;
-
     //extra variables, very important for minesweeper layout!!
+
+    private boolean mining = true; //determines if a player is in a mining style, or flagging style.
 
     //determining if winning or losing
 
@@ -90,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
 
         TextView mimetype = (TextView) findViewById(R.id.modes);
         mimetype.setOnClickListener(this::onClickMode);
-        //mimetype.setText("⛏🚩");
         runTimer(); //run time, unless a player clicked a mine.
     }
 
@@ -129,17 +125,18 @@ public class MainActivity extends AppCompatActivity {
         return -1;
     }
 
-    // This part is tricky.
-
-    //During clicking
-    //setOnClickListener(this::onClickNode);??
+    //Specifically clicking on the icon at the bottom.
+    //That part is done.
+    
     public void onClickMode(View view){
         TextView tv = (TextView) view;
         if (tv.getText().toString().equals("🚩")){
             tv.setText("⛏");
+            mining = true;
         }
         else if (tv.getText().toString().equals("⛏")){
             tv.setText("🚩");
+            mining = false;
         }
     }
     public void onClickTV(View view){
@@ -147,25 +144,55 @@ public class MainActivity extends AppCompatActivity {
         //if you click the pickaxe or flag at the bottom, it changes mode.
 
         TextView tv = (TextView) view;
+        TextView flag = (TextView) findViewById(R.id.flagcount);
+        int flag_counter = Integer.parseInt(flag.getText().toString()); //grab an integer.
         if (tv.getCurrentTextColor() == Color.GREEN){
-            total_squares--;
-            Log.d("Counter",String.valueOf(total_squares) + " squares remaining.");
+            if (mining){
+
+                /*
+                This part is where it gets very difficult. Requires to use DFS algorithm.
+                We need to know what happens if a player clicked a mine. If that is a case,
+                head to the intent.
+                We need to deal with the barriers. If we go out of bounds, then that is a problem.
+                We will need to use data structures, like a 2D array. Maybe that can help. But we
+                also need to store the mines location.
+                DFS will be hard. I will need to get very good planning skills, like CSCI 104...
+                 */
+                //If we are mining, then we color this as gray. Otherwise, do not color but place a flag.
+
+                if (tv.getText().toString().equals("")){
+                    total_squares--; //we dug a square.
+                    Log.d("Counter",String.valueOf(total_squares) + " squares remaining.");
+                    tv.setTextColor(Color.GRAY);
+                    tv.setBackgroundColor(Color.LTGRAY);
+
+                    if (total_squares==0){
+                        final TextView timeView = (TextView) findViewById(R.id.timer);
+                        String message = timeView.getText().toString();
+
+                        Intent intent = new Intent(this, Result.class);
+                        intent.putExtra("com.example.sendmessage.MESSAGE", message);
+                        startActivity(intent);
+                    }
+                    //detecting mines
+
+                    int n = findIndexOfCellTextView(tv);
+                    int i = n/COLUMN_COUNT;
+                    int j = n%COLUMN_COUNT;
+                }
+            }
+            else{
+                //we only place flags. THIS PART IS DONE
+                if (tv.getText().toString().equals("")){
+                    tv.setText("🚩");
+                    flag_counter--;
+                }
+                else {
+                    tv.setText("");
+                    flag_counter++;
+                }
+                flag.setText(String.valueOf(flag_counter));
+            }
         }
-        tv.setTextColor(Color.GRAY);
-        tv.setBackgroundColor(Color.LTGRAY);
-
-        if (total_squares==0){
-            final TextView timeView = (TextView) findViewById(R.id.timer);
-            String message = timeView.getText().toString();
-
-            Intent intent = new Intent(this, Result.class);
-            intent.putExtra("com.example.sendmessage.MESSAGE", message);
-            startActivity(intent);
-        }
-        //detecting mines
-
-        int n = findIndexOfCellTextView(tv);
-        int i = n/COLUMN_COUNT;
-        int j = n%COLUMN_COUNT;
     }
 }

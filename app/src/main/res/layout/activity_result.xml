@@ -10,8 +10,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="193dp"
-        android:text="Button"
         android:onClick="backToMain"
+        android:text="Play Again"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -20,9 +20,32 @@
         android:id="@+id/secondsused"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="216dp"
-        android:text="TextView"
+        android:layout_marginTop="100dp"
+        android:text="Used 00 Seconds"
+        android:textSize="32sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/won"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="2dp"
+        android:text="You won."
+        android:textSize="32sp"
+        app:layout_constraintStart_toStartOf="@+id/secondsused"
+        app:layout_constraintTop_toBottomOf="@+id/secondsused" />
+
+    <TextView
+        android:id="@+id/job"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="-8dp"
+        android:layout_marginTop="4dp"
+        android:text="Good Job!"
+        android:textSize="32sp"
+        app:layout_constraintStart_toStartOf="@+id/won"
+        app:layout_constraintTop_toBottomOf="@+id/won" />
 </androidx.constraintlayout.widget.ConstraintLayout>

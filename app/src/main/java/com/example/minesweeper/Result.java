@@ -13,9 +13,9 @@ public class Result extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
-        //Intent intent = getIntent();
-        //String message = intent.getStringExtra("com.example.sendmessage.MESSAGE");
-        String message = "Tell me!";
+        Intent intent = getIntent();
+        String message = intent.getStringExtra("com.example.sendmessage.MESSAGE");
+        message = "Used " + message + " seconds.";
 
         TextView textView = (TextView) findViewById(R.id.secondsused);
         //you get object by id
