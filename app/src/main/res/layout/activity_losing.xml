@@ -5,46 +5,35 @@
     android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/button2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="193dp"
-        android:onClick="backToMain"
         android:text="Play Again"
+        android:onClick="backToMain"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/seconds_used"
+        android:id="@+id/seconds"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
-        android:text="Used 00 Seconds"
         android:textSize="32sp"
+        android:text="Used 00 Seconds"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/won"
+        android:id="@+id/lostmessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
-        android:layout_marginTop="2dp"
-        android:text="You won."
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="-40dp"
+        android:text="Better Luck Next Time!"
         android:textSize="32sp"
-        app:layout_constraintStart_toStartOf="@+id/seconds_used"
-        app:layout_constraintTop_toBottomOf="@+id/seconds_used" />
-
-    <TextView
-        android:id="@+id/job"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="-8dp"
-        android:layout_marginTop="4dp"
-        android:text="Good Job!"
-        android:textSize="32sp"
-        app:layout_constraintStart_toStartOf="@+id/won"
-        app:layout_constraintTop_toBottomOf="@+id/won" />
+        app:layout_constraintEnd_toEndOf="@+id/seconds"
+        app:layout_constraintTop_toBottomOf="@+id/seconds" />
 </androidx.constraintlayout.widget.ConstraintLayout>

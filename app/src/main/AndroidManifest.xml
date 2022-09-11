@@ -14,8 +14,20 @@
         android:theme="@style/Theme.Minesweeper"
         tools:targetApi="31">
         <activity
+            android:name=".Losing"
+            android:exported="false">
+            <intent-filter>
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".Result"
-            android:exported="false" />
+            android:exported="false">
+            <intent-filter>
+                <data android:mimeType="image/*"/>
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".MainActivity"
             android:exported="true">

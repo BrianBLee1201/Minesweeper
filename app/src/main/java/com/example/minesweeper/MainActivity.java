@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     //extra variables, very important for minesweeper layout!!
 
     private boolean mining = true; //determines if a player is in a mining style, or flagging style.
-
+    private int[][] mine_location = new int[ROW_COUNT][COLUMN_COUNT];
     //determining if winning or losing
 
     private int total_squares = COLUMN_COUNT * ROW_COUNT;
@@ -88,7 +89,9 @@ public class MainActivity extends AppCompatActivity {
         TextView mimetype = (TextView) findViewById(R.id.modes);
         mimetype.setOnClickListener(this::onClickMode);
         runTimer(); //run time, unless a player clicked a mine.
+        generate_mines();
     }
+
 
     private void runTimer() { //used in lecture; not plagiarized.
         final TextView timeView = (TextView) findViewById(R.id.timer);
@@ -125,6 +128,20 @@ public class MainActivity extends AppCompatActivity {
         return -1;
     }
 
+    public void generate_mines(){
+        Random rand = new Random();
+        for (int i = 0; i < MINES_COUNT; i++){
+            int x1 = rand.nextInt(ROW_COUNT);
+            int x2 = rand.nextInt(COLUMN_COUNT);
+            while (mine_location[x1][x2] == 1000000){ //contains mine
+                x1 = rand.nextInt(ROW_COUNT);
+                x2 = rand.nextInt(COLUMN_COUNT);
+            }
+            mine_location[x1][x2] = 1000000;
+            total_squares--; //Do not include squares that are occupied by mines.
+            Log.d("Mine Location",String.valueOf(x1) + " " + String.valueOf(x2));
+        }
+    }
     //Specifically clicking on the icon at the bottom.
     //That part is done.
     
@@ -161,24 +178,40 @@ public class MainActivity extends AppCompatActivity {
                 //If we are mining, then we color this as gray. Otherwise, do not color but place a flag.
 
                 if (tv.getText().toString().equals("")){
+                    //checks to see if there is no flag
                     total_squares--; //we dug a square.
-                    Log.d("Counter",String.valueOf(total_squares) + " squares remaining.");
-                    tv.setTextColor(Color.GRAY);
-                    tv.setBackgroundColor(Color.LTGRAY);
+                    //Log.d("Counter",String.valueOf(total_squares) + " squares remaining.");
 
-                    if (total_squares==0){
-                        final TextView timeView = (TextView) findViewById(R.id.timer);
-                        String message = timeView.getText().toString();
-
-                        Intent intent = new Intent(this, Result.class);
-                        intent.putExtra("com.example.sendmessage.MESSAGE", message);
-                        startActivity(intent);
-                    }
                     //detecting mines
 
                     int n = findIndexOfCellTextView(tv);
                     int i = n/COLUMN_COUNT;
                     int j = n%COLUMN_COUNT;
+                    if (mine_location[i][j] != 1000000){ //a user does not hit a mine
+                        tv.setTextColor(Color.GRAY);
+                        tv.setBackgroundColor(Color.LTGRAY);
+
+                        if (total_squares==0){
+                            final TextView timeView = (TextView) findViewById(R.id.timer);
+                            String message = timeView.getText().toString();
+
+                            Intent intent = new Intent(this, Result.class);
+                            intent.putExtra("com.example.sendmessage.MESSAGE", message);
+                            startActivity(intent);
+                        }
+                    }
+                    else{ //user hits a mine
+                        tv.setTextColor(Color.RED);
+                        tv.setBackgroundColor(Color.RED);
+                        running = false;
+
+                        final TextView timeView = (TextView) findViewById(R.id.timer);
+                        String message = timeView.getText().toString();
+
+                        Intent intent = new Intent(this, Losing.class);
+                        intent.putExtra("com.example.sendmessage.MESSAGE", message);
+                        startActivity(intent);
+                    }
                 }
             }
             else{
