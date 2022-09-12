@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private final int[][] mine_location = new int[ROW_COUNT][COLUMN_COUNT]; //creates a table that shows which location has mines.
     private final int[][] surroundings = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
     private final ArrayList<Pair<Integer, Integer>> locations = new ArrayList<>();
+    private final ArrayList<Pair<Integer, Integer>> flaglocations = new ArrayList<>();
     private final boolean[][] visited = new boolean[ROW_COUNT][COLUMN_COUNT]; //very important for DFS.
     private int total_squares = COLUMN_COUNT * ROW_COUNT;
 
@@ -224,8 +225,23 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     else{ //user hits a mine
-                        tv.setTextColor(Color.RED);
-                        tv.setBackgroundColor(Color.RED);
+                        for (int k = 0; k < MINES_COUNT; k++){ //reveal all the mines, except the ones that contain a flag.
+                            Pair<Integer, Integer> temp = locations.get(k);
+                            TextView tv2 = cell_tvs.get(COLUMN_COUNT * temp.first + temp.second);
+                            if (!tv2.getText().toString().equals("\uD83D\uDEA9")){
+                                tv2.setTextColor(Color.RED);
+                                tv2.setBackgroundColor(Color.RED);
+                            }
+                        }
+                        for (int l = 0; l < flaglocations.size(); l++){ //if a user flags a wrong square, then color it as pink.
+                            Pair<Integer, Integer> temp2 = flaglocations.get(l);
+                            TextView tv3 = cell_tvs.get(COLUMN_COUNT * temp2.first + temp2.second);
+                            if (!locations.contains(temp2)){
+                                tv3.setText("X");
+                                tv3.setTextColor(Color.RED);
+                                tv3.setBackgroundColor(Color.GREEN);
+                            }
+                        }
                         running = false;
 
                         //Send to the results screen.
@@ -246,6 +262,7 @@ public class MainActivity extends AppCompatActivity {
                 int i = n/COLUMN_COUNT;
                 int j = n%COLUMN_COUNT;
                 TextView tv2 = cell_tvs.get(COLUMN_COUNT * i +j); //specify which cell.
+                Pair<Integer, Integer> loc = new Pair<>(i, j);
 
                 if (tv.getText().toString().equals("\uD83D\uDEA9")){ //remove a flag
                     if (mine_location[i][j] != 1000000 && mine_location[i][j] != 0){ //has a mine near it
@@ -256,12 +273,16 @@ public class MainActivity extends AppCompatActivity {
                         tv.setText("");
                         tv2.setText("");
                     }
+                    flaglocations.remove(loc);
                     flag_counter++;
                 }
                 else { //set a flag
                     tv.setText("\uD83D\uDEA9");
                     tv2.setText("\uD83D\uDEA9");
                     flag_counter--;
+                    if (!flaglocations.contains(loc)){
+                        flaglocations.add(loc);
+                    }
                 }
                 flag.setText(String.valueOf(flag_counter)); //update counter
             }
