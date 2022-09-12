@@ -7,7 +7,6 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
@@ -17,7 +16,7 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    //***INITIALIZATION
+    //***INITIALIZATION***
 
     //layout and mines. Feel Free to change it, but make sure that it makes sense.
     private static final int COLUMN_COUNT = 8;
@@ -30,8 +29,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean mining = true; //determines if a player is in a mining style, or flagging style.
     private final int[][] mine_location = new int[ROW_COUNT][COLUMN_COUNT]; //creates a table that shows which location has mines.
     private final int[][] surroundings = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
-    private final ArrayList<Pair<Integer, Integer>> locations = new ArrayList<Pair<Integer, Integer>>();
-    private boolean[][] visited = new boolean[ROW_COUNT][COLUMN_COUNT]; //very important for DFS.
+    private final ArrayList<Pair<Integer, Integer>> locations = new ArrayList<>();
+    private final boolean[][] visited = new boolean[ROW_COUNT][COLUMN_COUNT]; //very important for DFS.
     private int total_squares = COLUMN_COUNT * ROW_COUNT;
 
     //***END OF INITIALIZATION***
@@ -46,13 +45,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        cell_tvs = new ArrayList<TextView>();
+        cell_tvs = new ArrayList<>();
 
         // Method (2): add four dynamically created cells. Used in lecture.
         // However, this is modified since I need to also initialize mine_location and visited.
-        androidx.gridlayout.widget.GridLayout grid = (androidx.gridlayout.widget.GridLayout) findViewById(R.id.gridLayout01);
+        androidx.gridlayout.widget.GridLayout grid = findViewById(R.id.gridLayout01);
         running = true;
-        TextView flag = (TextView) findViewById(R.id.flagcount);
+        TextView flag = findViewById(R.id.flagcount);
         flag.setText(String.valueOf(MINES_COUNT));
 
         for (int i = 0; i < ROW_COUNT; i++){
@@ -92,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        TextView mimetype = (TextView) findViewById(R.id.modes);
+        TextView mimetype = findViewById(R.id.modes);
         mimetype.setOnClickListener(this::onClickMode); //allows users to change modes.
 
         runTimer(); //run time, unless a player clicked a mine.
@@ -100,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void runTimer() { //used in lecture
-        final TextView timeView = (TextView) findViewById(R.id.timer);
+        final TextView timeView = findViewById(R.id.timer);
         final Handler handler = new Handler();
 
         handler.post(new Runnable() {
@@ -150,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
                 x1 = rand.nextInt(ROW_COUNT);
                 x2 = rand.nextInt(COLUMN_COUNT);
             }
-            Pair<Integer, Integer> loc = new Pair<Integer, Integer>(x1, x2);
+            Pair<Integer, Integer> loc = new Pair<>(x1, x2);
             locations.add(loc);
 
             mine_location[x1][x2] = 1000000;
@@ -197,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
         //if you click the pickaxe or flag at the bottom, it changes mode.
 
         TextView tv = (TextView) view;
-        TextView flag = (TextView) findViewById(R.id.flagcount);
+        TextView flag = findViewById(R.id.flagcount);
         int flag_counter = Integer.parseInt(flag.getText().toString()); //grab an integer.
 
         if (tv.getCurrentTextColor() == Color.GREEN){ //You only click green squares. Clicking gray does nothing.
@@ -213,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
                         DFS(i, j);
 
                         if (total_squares<=0){ //completes a game and finishes
-                            final TextView timeView = (TextView) findViewById(R.id.timer);
+                            final TextView timeView = findViewById(R.id.timer);
                             String message = timeView.getText().toString();
                             String dummyresult = "win";
 
@@ -231,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
 
                         //Send to the results screen.
 
-                        final TextView timeView = (TextView) findViewById(R.id.timer);
+                        final TextView timeView = findViewById(R.id.timer);
                         String message = timeView.getText().toString();
                         String dummyresult = "lose";
 
