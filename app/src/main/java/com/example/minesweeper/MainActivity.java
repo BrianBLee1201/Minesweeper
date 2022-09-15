@@ -213,6 +213,15 @@ public class MainActivity extends AppCompatActivity {
                         DFS(i, j);
 
                         if (total_squares<=0){ //completes a game and finishes
+                            //display locations of mines
+                            for (int k = 0; k < MINES_COUNT; k++){
+                                Pair<Integer, Integer> temp = locations.get(k);
+                                TextView tv2 = cell_tvs.get(COLUMN_COUNT * temp.first + temp.second);
+                                if (!tv2.getText().toString().equals("\uD83D\uDEA9")){
+                                    tv2.setText("\uD83D\uDEA9");
+                                }
+                            }
+
                             final TextView timeView = findViewById(R.id.timer);
                             String message = timeView.getText().toString();
                             String dummyresult = "win";
